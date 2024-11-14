@@ -1,12 +1,12 @@
-from typing import List
-from pydantic import BaseModel
+from typing import List, Tuple
+from models.common import CommonModel
 from .card import Card
 
 
-class Deck(BaseModel):
-    id: int
+class Deck(CommonModel):
     name: str
     cards: List[Card] = []
+    fields: Tuple[str, ...] = "id", "name"
 
     def add_cards(self, cards: List[Card]) -> "Deck":
         self.cards = cards
