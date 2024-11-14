@@ -15,6 +15,7 @@ import AddDeckForm from '@/components/shared/AddDeckForm';
 import { fetcher } from '@/lib/utils';
 import type { Deck } from '@/lib/types/components.type';
 import { useRef } from 'react';
+import { FetchError } from '@/lib/exceptions';
 
 export default function Home() {
   const {
@@ -88,6 +89,14 @@ export default function Home() {
                         'You just added a new deck to learn from. Happy learning!',
                     });
                     dialogTrigger.current?.click();
+                  }}
+                  onError={(e) => {
+                    if (e instanceof FetchError)
+                      toast({
+                        title: 'Whoops!',
+                        description: e.message,
+                        variant: 'destructive',
+                      });
                   }}
                 />
               </ScrollArea>

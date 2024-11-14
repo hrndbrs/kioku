@@ -22,7 +22,7 @@ class DeckService(BaseService):
 
     def add(self, new_deck: Deck) -> "DeckService":
         if any(deck.name == new_deck.name for deck in self.decks):
-            raise ValueError()
+            raise ValueError(f"The collection {new_deck.name} already exists")
 
         self.decks = [*self.decks, new_deck]
 

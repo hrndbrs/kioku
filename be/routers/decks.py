@@ -22,9 +22,10 @@ def get_deck_by_id(
 ):
     try:
         return deck_service.get_by_id(id, card_service.cards)
-    except Exception as e:
-        print(e)
+    except StopIteration:
         raise HTTPException(404, detail=f"No deck with the id {id} was found.")
+    except Exception as e:
+        raise HTTPException(500, detail=f"Unhandled exception: {str(e)}")
     finally:
         deck_service.file.close()
         card_service.file.close()
@@ -45,11 +46,10 @@ def add_new_deck(
         card_service.save(id_service)
 
         return {"message": f"Successfully created a new deck with id {new_deck.id}"}
-    except ValueError:
-        raise HTTPException(400, detail="Invalid Input")
+    except ValueError as e:
+        raise HTTPException(400, detail=str(e))
     except Exception as e:
-        print(e)
-        raise HTTPException(500, detail="Unknown error")
+        raise HTTPException(500, detail=f"Unhandled error: {str(e)}")
     finally:
         deck_service.file.close()
         card_service.file.close()

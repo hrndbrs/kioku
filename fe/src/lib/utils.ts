@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { FetchError } from './exceptions';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -12,7 +13,7 @@ export const fetcher = async <T>([url, init]: [
   const res = await fetch(`${import.meta.env.VITE_BE_BASE_URL}${url}`, init);
   const data = await res.json();
 
-  if (!res.ok) throw data;
+  if (!res.ok) throw new FetchError(data, res.status);
 
   return data as T;
 };
