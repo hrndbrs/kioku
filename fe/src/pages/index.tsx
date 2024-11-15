@@ -171,7 +171,13 @@ export default function Home() {
                 <Button
                   className="rounded-full transition-colors duration-200 hover:text-destructive max-xs:flex-1"
                   variant="ghost"
-                  onClick={logout}
+                  onClick={() => {
+                    logout();
+                    toast({
+                      title: 'Goodbye ヾ(；ω；)',
+                      description: 'We hope to see you again...',
+                    });
+                  }}
                 >
                   <span className="iconify size-4 lucide--log-out" />
                   Log Out

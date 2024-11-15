@@ -1,4 +1,4 @@
-import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { Navigate, useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import {
@@ -32,7 +32,8 @@ export default function Auth() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const q = Number(searchParams.get('q'));
-  const activeTab = $q.includes(q) ? q : $q[0];
+
+  if (!$q.includes(q)) return <Navigate to="/auth" />;
 
   const handleSubmit = async (formData: unknown) => {
     try {
@@ -49,13 +50,18 @@ export default function Auth() {
       ]);
 
       localStorage.setItem('access_token', access_token);
+      toast({
+        title: q ? 'You’re in!' : "Let's train hard today as well!",
+        description: q
+          ? 'Time to stack up some knowledge and flip those cards!'
+          : undefined,
+      });
 
       navigate('/');
     } catch (e) {
       if (e instanceof FetchError)
         toast({
-          title: 'Oh no!',
-          description: e.message,
+          title: e.message,
           variant: 'destructive',
         });
     }
@@ -74,10 +80,10 @@ export default function Auth() {
             <div className="mb-2 flex space-x-2">
               <Button
                 className={cn(
-                  'flex-1',
-                  activeTab === ActiveTab.LOGIN && 'pointer-events-none',
+                  'flex-1 transition-colors duration-300',
+                  q === ActiveTab.LOGIN && 'pointer-events-none',
                 )}
-                variant={activeTab === ActiveTab.LOGIN ? 'default' : 'outline'}
+                variant={q === ActiveTab.LOGIN ? 'default' : 'outline'}
                 onClick={() =>
                   setSearchParams({ q: ActiveTab.LOGIN.toString() })
                 }
@@ -86,12 +92,10 @@ export default function Auth() {
               </Button>
               <Button
                 className={cn(
-                  'flex-1',
-                  activeTab === ActiveTab.REGISTER && 'pointer-events-none',
+                  'flex-1 transition-colors duration-300',
+                  q === ActiveTab.REGISTER && 'pointer-events-none',
                 )}
-                variant={
-                  activeTab === ActiveTab.REGISTER ? 'default' : 'outline'
-                }
+                variant={q === ActiveTab.REGISTER ? 'default' : 'outline'}
                 onClick={() =>
                   setSearchParams({ q: ActiveTab.REGISTER.toString() })
                 }
@@ -100,26 +104,28 @@ export default function Auth() {
               </Button>
             </div>
             <CardTitle>
-              {activeTab === ActiveTab.LOGIN
-                ? 'Welcome back'
-                : 'Create an account'}
+              {q === ActiveTab.LOGIN ? 'Welcome back' : 'Create an account'}
             </CardTitle>
             <CardDescription>
-              {activeTab === ActiveTab.LOGIN
+              {q === ActiveTab.LOGIN
                 ? "Let's continue your journey of unlocking super memory"
                 : 'Sign up to start boosting your memory'}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <AuthForm inputs={forms[q]} onSubmit={handleSubmit}>
+            <AuthForm inputs={forms[q]} onSubmit={handleSubmit} key={q}>
               <CardFooter className="mt-2 grid gap-2 max-xs:p-0">
                 <Button className="w-full rounded-full">
-                  {activeTab === ActiveTab.LOGIN
+                  {q === ActiveTab.LOGIN
                     ? 'Continue Learning'
                     : 'Start Your Journey'}
                 </Button>
                 <Link to="/">
-                  <Button className="w-full rounded-full" variant="ghost">
+                  <Button
+                    type="button"
+                    className="w-full rounded-full"
+                    variant="ghost"
+                  >
                     Cancel
                   </Button>
                 </Link>
