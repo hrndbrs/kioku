@@ -5,11 +5,14 @@ import {
   type ReactNode,
   type ChangeEvent,
   ReactElement,
+  useRef,
+  useEffect,
 } from 'react';
+import { z } from 'zod';
+import autoAnimate from '@formkit/auto-animate';
 import { Label } from '../ui/label';
 import { Input } from '../ui/input';
 import { cn } from '@/lib/utils';
-import { z } from 'zod';
 
 export interface FormInputProps extends ComponentProps<'input'> {
   label?: string;
@@ -28,6 +31,7 @@ export function AuthForm<T extends z.Schema<any, any>>({
   onSubmit,
   inputs,
   className,
+  id,
   ...props
 }: ComponentProps<'form'> & {
   onSubmit: (data: Record<keyof typeof inputs, string>) => void;
@@ -44,14 +48,21 @@ export function AuthForm<T extends z.Schema<any, any>>({
         string
       >,
   );
+  const formRef = useRef<HTMLFormElement>(null);
 
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   }
 
+  useEffect(() => {
+    formRef.current && autoAnimate(formRef.current);
+  }, []);
+
   return (
     <form
+      id={id}
+      ref={formRef}
       className={cn('space-y-4', className)}
       onSubmit={(e) => {
         e.preventDefault();
@@ -62,7 +73,7 @@ export function AuthForm<T extends z.Schema<any, any>>({
       {inputKeys.map((name) => {
         const { label, type, ...props } = inputs[name];
         return (
-          <div className="space-y-2" key={name.toString()}>
+          <div className="space-y-2" key={`${id}-${name.toString()}`}>
             {label ? <Label htmlFor={name.toString()}>{label}</Label> : null}
             <Input
               id={name.toString()}

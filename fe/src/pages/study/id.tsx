@@ -1,5 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Link, useLoaderData } from 'react-router-dom';
+import autoAnimate from '@formkit/auto-animate';
 import {
   Card,
   CardContent,
@@ -25,6 +26,9 @@ const DeckView: React.FC<Required<Deck>> = ({ name, cards }) => {
   const [isPracticing, setIsPracticing] = useState(false);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [isShowingAnswer, setIsShowingAnswer] = useState(false);
+  const dropdownContainerRefs = useRef<(HTMLElement | null)[]>(
+    cards.map(() => null),
+  );
 
   const randomizedCards = useMemo(() => shuffleArray(cards), [isPracticing]);
 
@@ -59,6 +63,12 @@ const DeckView: React.FC<Required<Deck>> = ({ name, cards }) => {
     setCurrentCardIndex(0);
     setIsShowingAnswer(false);
   };
+
+  useEffect(() => {
+    dropdownContainerRefs.current.forEach((ref) => {
+      ref && autoAnimate(ref);
+    });
+  }, []);
 
   return (
     <>
@@ -121,7 +131,11 @@ const DeckView: React.FC<Required<Deck>> = ({ name, cards }) => {
                   </span>
                 </Button>
               </CardHeader>
-              <CardContent>
+              <CardContent
+                ref={(e) => {
+                  dropdownContainerRefs.current[idx] = e;
+                }}
+              >
                 <p className="text-base font-medium">{card.front}</p>
                 {expandedCard === card.id && (
                   <div

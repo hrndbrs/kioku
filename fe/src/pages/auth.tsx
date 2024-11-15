@@ -113,7 +113,7 @@ export default function Auth() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <AuthForm inputs={forms[q]} onSubmit={handleSubmit} key={q}>
+            <AuthForm inputs={forms[q]} onSubmit={handleSubmit} id={String(q)}>
               <CardFooter className="mt-2 grid gap-2 max-xs:p-0">
                 <Button className="w-full rounded-full">
                   {q === ActiveTab.LOGIN
