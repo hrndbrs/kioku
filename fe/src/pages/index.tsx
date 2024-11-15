@@ -1,9 +1,11 @@
-import useSWR from 'swr';
+import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import useSWR from 'swr';
 import { useToast } from '@/hooks/use-toast';
+import { useSupportsHover } from '@/hooks/use-supports-hover';
 import { useSession } from '@/contexts/session-context';
-import { Button } from '@/components/ui/button';
 import { Card, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -19,9 +21,8 @@ import {
 } from '@/components/ui/tooltip';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import AddDeckForm from '@/components/shared/AddDeckForm';
-import { fetcher } from '@/lib/utils';
+import { cn, fetcher } from '@/lib/utils';
 import type { Deck } from '@/lib/types/components.type';
-import { useEffect, useRef, useState } from 'react';
 import { FetchError } from '@/lib/exceptions';
 
 export default function Home() {
@@ -35,16 +36,10 @@ export default function Home() {
     revalidateIfStale: false,
   });
   const [openTooltipId, setOpenTooltipId] = useState<number | null>(null);
-  const [supportsHover, setSupportsHover] = useState(true);
-
   const dialogTrigger = useRef<HTMLButtonElement>(null);
   const { session, logout } = useSession();
   const { toast } = useToast();
-
-  useEffect(() => {
-    const hasHover = window.matchMedia('(hover: hover)').matches;
-    setSupportsHover(hasHover);
-  }, []);
+  const supportsHover = useSupportsHover();
 
   if (isLoading)
     return (
@@ -80,6 +75,8 @@ export default function Home() {
     );
 
   const handleTooltipOpenChange = (open: boolean, id: number) => {
+    if (!supportsHover) return;
+
     if (open) {
       setOpenTooltipId(id);
     } else if (openTooltipId === id) {
@@ -208,17 +205,13 @@ export default function Home() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="absolute right-2 top-2 h-8 w-8 rounded-full text-destructive opacity-20 transition-all duration-200 hover:bg-destructive hover:text-neutral-50 group-hover:opacity-100"
+                        className={cn(
+                          'absolute right-2 top-2 h-8 w-8 rounded-full text-destructive opacity-20 transition-all duration-200 hover:bg-destructive hover:text-neutral-50 group-hover:opacity-100',
+                          openTooltipId === deck.id &&
+                            'bg-destructive text-neutral-50 opacity-100',
+                        )}
                         aria-label={'Delete deck ' + deck.name}
-                        onClick={() =>
-                          !supportsHover && handleDeleteClick(deck.id)
-                        }
-                        onTouchStart={(e) =>
-                          !supportsHover &&
-                          e.preventDefault() &&
-                          handleDeleteClick(deck.id)
-                        }
-                        // onClick={() => handleDeleteButtonClick(deck.id)}
+                        onClick={() => handleDeleteClick(deck.id)}
                       >
                         <span className="iconify size-4 lucide--trash" />
                       </Button>
