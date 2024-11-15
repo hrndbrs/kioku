@@ -31,3 +31,7 @@ archive.zip
 
 # PM2
 ecosystem.config.js
+
+# miscellaneous
+
+db

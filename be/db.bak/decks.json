@@ -1,10 +1,12 @@
 [
   {
     "id": 1,
+    "user_id": 1,
     "name": "Japanese N1"
   },
   {
     "id": 2,
+    "user_id": 0,
     "name": "Mechanical Terms"
   }
 ]

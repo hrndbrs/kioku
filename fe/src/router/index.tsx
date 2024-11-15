@@ -1,8 +1,10 @@
 import { createBrowserRouter, redirect } from 'react-router-dom';
 import RootLayout from '@/components/layouts/root.layout';
-import Home from '@/routes';
-import Study from '@/routes/study/id';
-import NotFound from '@/routes/not-found';
+import ContentLayout from '@/components/layouts/content.layout';
+import Home from '@/pages';
+import Study from '@/pages/study/id';
+import Auth from '@/pages/auth';
+import NotFound from '@/pages/not-found';
 import { fetcher } from '@/lib/utils';
 import type { Deck } from '@/lib/types/components.type';
 
@@ -13,20 +15,34 @@ export const router = createBrowserRouter([
     children: [
       {
         path: '',
-        element: <Home />,
+        element: <ContentLayout />,
+        children: [
+          {
+            path: '',
+            element: <Home />,
+          },
+          {
+            path: 'study/:id',
+            loader: async ({ params }) => {
+              try {
+                const { id } = params;
+                const data = await fetcher<Deck>([`/decks/${id}`]);
+                return data;
+              } catch (e) {
+                return redirect('/not-found');
+              }
+            },
+            element: <Study />,
+          },
+        ],
       },
       {
-        path: 'study/:id',
-        loader: async ({ params }) => {
-          try {
-            const { id } = params;
-            const data = await fetcher<Deck>([`/decks/${id}`]);
-            return data;
-          } catch (e) {
-            return redirect('/not-found');
-          }
+        path: '/auth',
+        loader: () => {
+          if (localStorage.getItem('access_token')) return redirect('/');
+          return null;
         },
-        element: <Study />,
+        element: <Auth />,
       },
     ],
   },

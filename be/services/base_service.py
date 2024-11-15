@@ -1,7 +1,7 @@
+from typing import Annotated, Any, Dict, Generic, List, Tuple, TypeVar
 import json
 from io import TextIOWrapper
-from typing import Any, Dict, Generic, List, Tuple, TypeVar
-
+from fastapi import Depends
 from models.common import CommonModel
 
 
@@ -63,16 +63,17 @@ class BaseService(Generic[T]):
         key, val = next(iter(kwargs.items()))
         return [model for model in self.models if model.get_attr(key) == val]
 
-    def add(self, new_entry: T) -> "BaseService":
+    def add(self, new_entry: T) -> T:
         self.models = [*self.models, new_entry]
-        return self
+        return new_entry
 
     def delete_by_id(self, id: int) -> T:
         deleted = next(model for model in self.models if model.id == id)
         self.models
+        self.models = [model for model in self.models if model.id != id]
         return deleted
 
-    def save(self, id_service: IDIndexService) -> "BaseService":
+    def save(self, id_service: IDIndexService | None = None) -> "BaseService":
         file = self._connect_to_db()[1]
         self.models.sort(key=lambda m: m.id)
         file.seek(0)
@@ -92,5 +93,10 @@ class BaseService(Generic[T]):
 
         file.close()
 
-        id_service.overwrite(self.table_name, self.models[-1].id)
+        if id_service and len(self.models) > 0:
+            id_service.overwrite(self.table_name, self.models[-1].id)
+
         return self
+
+
+IDInjectable = Annotated[IDIndexService, Depends()]

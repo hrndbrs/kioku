@@ -6,7 +6,8 @@ from .card import Card
 class Deck(CommonModel):
     name: str
     cards: List[Card] = []
-    fields: Tuple[str, ...] = "id", "name"
+    user_id: int
+    fields: Tuple[str, ...] = "id", "name", "user_id"
 
     def add_cards(self, cards: List[Card]) -> "Deck":
         self.cards = cards

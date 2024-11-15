@@ -52,9 +52,6 @@ export default function AddDeckForm({
         {
           method: 'POST',
           body: JSON.stringify(newDeck),
-          headers: {
-            'Content-Type': 'application/json',
-          },
         },
       ]);
       onSuccess(data);
